@@ -18,3 +18,4 @@ Complete documentation from the command line:
 ## Commands
 
 * zilla clone
+* zilla hackon
