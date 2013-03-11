@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import json
 
 IGNORED_COMMAND_FILES = [
     "__init__.py",
@@ -43,4 +44,39 @@ def run_cmd(command_string, **kwargs):
         "shell": True
     }
     opts.update(kwargs)
-    return subprocess.call(command_string, **opts)
+    pipe = subprocess.Popen(command_string, **opts)
+    pipe.wait()
+    return pipe
+
+_zilla_data_store = None
+
+def get_zilla_data_store():
+    global _zilla_data_store
+    if not _zilla_data_store:
+        _zilla_data_store = _ZillaDataStore()
+    return _zilla_data_store
+
+class _ZillaDataStore(object):
+    DATA_STORE_PATH = os.path.join(os.path.expanduser("~"),
+                                   ".zilla/store.json")
+    DATA_STORE_DEFAULTS = {}
+
+    def __init__(self):
+        zilla_dir = os.path.dirname(self.DATA_STORE_PATH)
+        if not os.path.isdir(zilla_dir):
+            os.mkdir(zilla_dir)
+        if not os.path.isfile(self.DATA_STORE_PATH):
+            with open(self.DATA_STORE_PATH, "w") as f:
+                f.write(json.dumps(self.DATA_STORE_DEFAULTS))
+        with open(self.DATA_STORE_PATH, "r") as f:
+            self._data = json.loads(f.read())
+
+    def __getitem__(self, attr):
+        return self._data[attr]
+
+    def __setitem__(self, attr, val):
+        self._data[attr] = val
+
+    def save():
+        with open(self.DATA_STORE_PATH, "w") as f:
+            f.write(json.dumps(self._data))

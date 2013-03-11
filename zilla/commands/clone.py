@@ -1,18 +1,25 @@
 import sys
-from zilla.utils import run_cmd
+import os
+from zilla.utils import run_cmd, get_zilla_data_store
+from argparse import ArgumentParser
+
+parser = ArgumentParser(prog="zilla clone")
+parser.add_argument("directory",
+                    nargs="?",
+                    default="mozilla-central",
+                    help="Directory to clone the repository into.")
 
 def run(args):
-    if len(args) > 1:
-        help()
-        sys.exit(1)
-    elif len(args) == 1:
-        clone_dir = args[0]
-    else:
-        clone_dir = "mozilla-central"
-    run_cmd("git clone git://github.com/mozilla/mozilla-central.git %s" % clone_dir)
+    args = parser.parse_args(args)
+    run_cmd("git clone git://github.com/mozilla/mozilla-central.git %s" % args.directory)
+
+    # TODO: check for failure of command here
+
+    store = get_zilla_data_store()
+    store[os.path.abspath(clone_dir)] = {
+        "branches": {}
+    }
+    store.save()
 
 def help():
-    print """usage: zilla clone [DIRECTORY]
-
-Clone the mozilla-central repository into DIRECTORY. By default, this creates a
-'mozilla-central' directory."""
+    parser.print_help()

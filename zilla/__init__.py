@@ -13,7 +13,7 @@ double_dash_commands = {
 def run(args):
     if len(args) == 0:
         usage()
-    else:
-        subcmd = command_importer(double_dash_commands.get(args[0], args[0]))
-        subcmd.run(args[1:])
-        sys.exit(0)
+
+    subcmd = command_importer(double_dash_commands.get(args[0], args[0]))
+    subcmd.run(args[1:])
+    sys.exit(0)
